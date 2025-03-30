@@ -1,12 +1,11 @@
-import { ReactElement, ReactNode, useState, useRef, useEffect } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { ReactElement, useState, useRef, useEffect } from 'react';
+import { Link as RouterLink, useLocation, Outlet } from 'react-router-dom';
 import {
   Avatar,
   Box,
   Divider,
   Dropdown,
   IconButton,
-  Input,
   List,
   ListItem,
   ListItemButton,
@@ -23,11 +22,6 @@ import { useColorScheme } from '@mui/joy';
 
 // Import icons (you'll need to install @mui/icons-material)
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import SettingsIcon from '@mui/icons-material/Settings';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import TaskIcon from '@mui/icons-material/Task';
-import SearchIcon from '@mui/icons-material/Search';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -35,17 +29,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useLogoutMutation } from '../../generated';
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
 interface SidebarItem {
   label: string;
   icon: ReactElement;
   path: string;
 }
 
-function Layout({ children }: LayoutProps): ReactElement {
+function Layout(): ReactElement {
   const { mode, setMode } = useColorScheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,13 +70,7 @@ function Layout({ children }: LayoutProps): ReactElement {
     };
   }, [mobileOpen]);
 
-  const sidebarItems: SidebarItem[] = [
-    { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { label: 'Users', icon: <PeopleIcon />, path: '/users' },
-    { label: 'Tasks', icon: <TaskIcon />, path: '/tasks' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
-  ];
+  const sidebarItems: SidebarItem[] = [{ label: 'Dashboard', icon: <DashboardIcon />, path: '/' }];
 
   const toggleColorMode = () => {
     setMode(mode === 'light' ? 'dark' : 'light');
@@ -227,7 +211,6 @@ function Layout({ children }: LayoutProps): ReactElement {
             <IconButton variant="outlined" color="neutral" onClick={toggleSidebar} sx={{ display: { xs: 'none', md: 'inline-flex' } }}>
               <MenuIcon />
             </IconButton>
-            <Input size="sm" placeholder="Search..." startDecorator={<SearchIcon />} sx={{ width: { xs: 160, md: 240 } }} />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton variant="outlined" color="neutral" onClick={toggleColorMode}>
@@ -265,7 +248,7 @@ function Layout({ children }: LayoutProps): ReactElement {
             bgcolor: 'background.level1',
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </Box>
     </Box>
