@@ -1,6 +1,22 @@
 import { ReactElement, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Box, Button, Card, Divider, FormControl, FormHelperText, FormLabel, Input, Link, Stack, Typography } from '@mui/joy';
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  IconButton,
+  Input,
+  Link,
+  Stack,
+  Typography,
+  useColorScheme,
+} from '@mui/joy';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { useLoginMutation } from '../../generated';
 
 interface LoginFormData {
@@ -9,12 +25,17 @@ interface LoginFormData {
 }
 
 function Login(): ReactElement {
+  const { mode, setMode } = useColorScheme();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const toggleColorMode = () => {
+    setMode(mode === 'light' ? 'dark' : 'light');
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -76,87 +97,147 @@ function Login(): ReactElement {
     });
   };
 
-  // Add this function to check if form is valid
   const isFormValid = (): boolean => {
-    // Basic validation for required fields
     if (!formData.email || !formData.password) {
       return false;
     }
-
-    // Email format validation
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
       return false;
     }
-
     return true;
   };
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
       sx={{
-        p: 2,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        minHeight: '100vh',
         bgcolor: 'background.surface',
       }}
     >
-      <Card
+      {/* Left side - Image */}
+      <Box
         sx={{
-          width: '100%',
-          maxWidth: 400,
-          p: 4,
-          boxShadow: 'md',
-          borderRadius: 'lg',
+          flex: { xs: '0 0 auto', md: '0 0 50%' },
+          height: { xs: '0vh', md: '100vh' },
+          position: 'relative',
+          backgroundImage: 'url(https://source.unsplash.com/random?workspace)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        <Typography level="h4" component="h1" sx={{ mb: 2, textAlign: 'center' }}>
-          Sign In
-        </Typography>
-
-        {serverError && (
-          <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
-            {serverError}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0, 0, 0, 0.4)',
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography
+            level="h1"
+            sx={{
+              color: 'white',
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              px: 2,
+            }}
+          >
+            Welcome Back
           </Typography>
-        )}
+        </Box>
+      </Box>
 
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <FormControl error={!!errors.email}>
-              <FormLabel>Email</FormLabel>
-              <Input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your.email@example.com"
-                fullWidth
-              />
-              {errors.email && <FormHelperText>{errors.email}</FormHelperText>}
-            </FormControl>
+      {/* Right side - Form */}
+      <Box
+        sx={{
+          flex: { xs: '1 1 auto', md: '0 0 50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3,
+          position: 'relative',
+        }}
+      >
+        {/* Theme toggle button */}
+        <IconButton
+          onClick={toggleColorMode}
+          sx={{
+            position: 'absolute',
+            top: { xs: 8, md: 16 },
+            right: { xs: 8, md: 16 },
+            bgcolor: 'background.surface',
+            boxShadow: 'sm',
+            zIndex: 10,
+          }}
+        >
+          {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
 
-            <FormControl error={!!errors.password}>
-              <FormLabel>Password</FormLabel>
-              <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" fullWidth />
-              {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
-            </FormControl>
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 400,
+            p: 4,
+            boxShadow: 'md',
+            borderRadius: 'lg',
+          }}
+        >
+          <Typography level="h4" component="h1" sx={{ mb: 2, textAlign: 'center' }}>
+            Sign In
+          </Typography>
 
-            <Button type="submit" loading={loading} fullWidth disabled={!isFormValid()} color={isFormValid() ? 'primary' : 'neutral'}>
-              Sign In
-            </Button>
-          </Stack>
-        </form>
+          {serverError && (
+            <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
+              {serverError}
+            </Typography>
+          )}
 
-        <Divider sx={{ my: 2 }}>or</Divider>
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+              <FormControl error={!!errors.email}>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your.email@example.com"
+                  fullWidth
+                />
+                {errors.email && <FormHelperText>{errors.email}</FormHelperText>}
+              </FormControl>
 
-        <Typography level="body-sm" sx={{ textAlign: 'center' }}>
-          Don't have an account?{' '}
-          <Link component={RouterLink} to="/register">
-            Sign up
-          </Link>
-        </Typography>
-      </Card>
+              <FormControl error={!!errors.password}>
+                <FormLabel>Password</FormLabel>
+                <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" fullWidth />
+                {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
+              </FormControl>
+
+              <Button type="submit" loading={loading} fullWidth disabled={!isFormValid()} color={isFormValid() ? 'primary' : 'neutral'}>
+                Sign In
+              </Button>
+            </Stack>
+          </form>
+
+          <Divider sx={{ my: 2 }}>or</Divider>
+
+          <Typography level="body-sm" sx={{ textAlign: 'center' }}>
+            Don't have an account?{' '}
+            <Link component={RouterLink} to="/register">
+              Sign up
+            </Link>
+          </Typography>
+        </Card>
+      </Box>
     </Box>
   );
 }

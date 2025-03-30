@@ -8,12 +8,16 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  IconButton,
   Input,
   Link,
   Stack,
   Typography,
   LinearProgress,
+  useColorScheme,
 } from '@mui/joy';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { useRegisterMutation } from '../../generated';
 
 interface RegisterFormData {
@@ -24,6 +28,7 @@ interface RegisterFormData {
 }
 
 function Register(): ReactElement {
+  const { mode, setMode } = useColorScheme();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
@@ -33,6 +38,10 @@ function Register(): ReactElement {
   });
   const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const toggleColorMode = () => {
+    setMode(mode === 'light' ? 'dark' : 'light');
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -212,100 +221,167 @@ function Register(): ReactElement {
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
       sx={{
-        p: 2,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        minHeight: '100vh',
         bgcolor: 'background.surface',
       }}
     >
-      <Card
+      {/* Left side - Image */}
+      <Box
         sx={{
-          width: '100%',
-          maxWidth: 400,
-          p: 4,
-          boxShadow: 'md',
-          borderRadius: 'lg',
+          flex: { xs: '0 0 auto', md: '0 0 50%' },
+          height: { xs: '0vh', md: '100vh' },
+          position: 'relative',
+          backgroundImage: 'url(https://source.unsplash.com/random?collaboration)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        <Typography level="h4" component="h1" sx={{ mb: 2, textAlign: 'center' }}>
-          Create Account
-        </Typography>
-
-        {serverError && (
-          <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
-            {serverError}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0, 0, 0, 0.4)',
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography
+            level="h1"
+            sx={{
+              color: 'white',
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              px: 2,
+            }}
+          >
+            Join Our Community
           </Typography>
-        )}
+        </Box>
+      </Box>
 
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <FormControl error={!!errors.name}>
-              <FormLabel>Name</FormLabel>
-              <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your name" fullWidth />
-              {errors.name && <FormHelperText>{errors.name}</FormHelperText>}
-            </FormControl>
+      {/* Right side - Form */}
+      <Box
+        sx={{
+          flex: { xs: '1 1 auto', md: '0 0 50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3,
+          position: 'relative',
+          overflowY: 'auto',
+          maxHeight: { xs: 'auto', md: '100vh' },
+        }}
+      >
+        {/* Theme toggle button */}
+        <IconButton
+          onClick={toggleColorMode}
+          sx={{
+            position: 'absolute',
+            top: { xs: 8, md: 16 },
+            right: { xs: 8, md: 16 },
+            bgcolor: 'background.surface',
+            boxShadow: 'sm',
+            zIndex: 10,
+          }}
+        >
+          {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
 
-            <FormControl error={!!errors.email}>
-              <FormLabel>Email</FormLabel>
-              <Input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your.email@example.com"
-                fullWidth
-              />
-              {errors.email && <FormHelperText>{errors.email}</FormHelperText>}
-            </FormControl>
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 400,
+            p: 4,
+            boxShadow: 'md',
+            borderRadius: 'lg',
+          }}
+        >
+          <Typography level="h4" component="h1" sx={{ mb: 2, textAlign: 'center' }}>
+            Create Account
+          </Typography>
 
-            <FormControl error={!!errors.password}>
-              <FormLabel>Password</FormLabel>
-              <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" fullWidth />
-              {formData.password && (
-                <Box sx={{ mt: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography level="body-xs">Password strength:</Typography>
-                    <Typography level="body-xs" textColor={getStrengthColor(passwordStrength)}>
-                      {getStrengthLabel(passwordStrength)}
-                    </Typography>
+          {serverError && (
+            <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
+              {serverError}
+            </Typography>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+              <FormControl error={!!errors.name}>
+                <FormLabel>Name</FormLabel>
+                <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your name" fullWidth />
+                {errors.name && <FormHelperText>{errors.name}</FormHelperText>}
+              </FormControl>
+
+              <FormControl error={!!errors.email}>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your.email@example.com"
+                  fullWidth
+                />
+                {errors.email && <FormHelperText>{errors.email}</FormHelperText>}
+              </FormControl>
+
+              <FormControl error={!!errors.password}>
+                <FormLabel>Password</FormLabel>
+                <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" fullWidth />
+                {formData.password && (
+                  <Box sx={{ mt: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography level="body-xs">Password strength:</Typography>
+                      <Typography level="body-xs" textColor={getStrengthColor(passwordStrength)}>
+                        {getStrengthLabel(passwordStrength)}
+                      </Typography>
+                    </Box>
+                    <LinearProgress determinate value={passwordStrength} color={getStrengthColor(passwordStrength)} />
                   </Box>
-                  <LinearProgress determinate value={passwordStrength} color={getStrengthColor(passwordStrength)} />
-                </Box>
-              )}
-              {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
-            </FormControl>
+                )}
+                {errors.password && <FormHelperText>{errors.password}</FormHelperText>}
+              </FormControl>
 
-            <FormControl error={!!errors.confirmPassword}>
-              <FormLabel>Confirm Password</FormLabel>
-              <Input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                fullWidth
-              />
-              {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
-            </FormControl>
+              <FormControl error={!!errors.confirmPassword}>
+                <FormLabel>Confirm Password</FormLabel>
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  fullWidth
+                />
+                {errors.confirmPassword && <FormHelperText>{errors.confirmPassword}</FormHelperText>}
+              </FormControl>
 
-            <Button type="submit" loading={loading} fullWidth disabled={!isFormValid()} color={isFormValid() ? 'primary' : 'neutral'}>
-              Sign Up
-            </Button>
-          </Stack>
-        </form>
+              <Button type="submit" loading={loading} fullWidth disabled={!isFormValid()} color={isFormValid() ? 'primary' : 'neutral'}>
+                Sign Up
+              </Button>
+            </Stack>
+          </form>
 
-        <Divider sx={{ my: 2 }}>or</Divider>
+          <Divider sx={{ my: 2 }}>or</Divider>
 
-        <Typography level="body-sm" sx={{ textAlign: 'center' }}>
-          Already have an account?{' '}
-          <Link component={RouterLink} to="/login">
-            Sign in
-          </Link>
-        </Typography>
-      </Card>
+          <Typography level="body-sm" sx={{ textAlign: 'center' }}>
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login">
+              Sign in
+            </Link>
+          </Typography>
+        </Card>
+      </Box>
     </Box>
   );
 }

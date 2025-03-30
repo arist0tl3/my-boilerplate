@@ -51,7 +51,6 @@ function Layout({ children }: LayoutProps): ReactElement {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const mainContentRef = useRef<HTMLDivElement>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const [logout] = useLogoutMutation({
     refetchQueries: ['CurrentUser'],
@@ -102,9 +101,7 @@ function Layout({ children }: LayoutProps): ReactElement {
   };
 
   const toggleSidebar = () => {
-    setIsAnimating(true);
     setSidebarOpen(!sidebarOpen);
-    setTimeout(() => setIsAnimating(false), 300);
   };
 
   const toggleMobileSidebar = () => {
@@ -161,7 +158,7 @@ function Layout({ children }: LayoutProps): ReactElement {
         }}
       >
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'space-between' : 'center' }}>
-          {(sidebarOpen || mobileOpen) ? (
+          {sidebarOpen || mobileOpen ? (
             <Typography level="h3" component="h1">
               AppName
             </Typography>

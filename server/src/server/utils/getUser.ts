@@ -2,10 +2,8 @@ import { verifyAuthToken } from '../../models/AuthToken/model';
 import type { Models } from '../../models';
 
 async function getUser(authHeader: string, models: Models) {
-  console.log('authHeader', authHeader);
   const token = authHeader?.replace('Bearer ', '');
 
-  console.log('token', token);
   if (!token) {
     return null;
   }
