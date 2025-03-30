@@ -1,5 +1,5 @@
-import { ReactElement, ReactNode, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { ReactElement, ReactNode, useState, useRef, useEffect } from 'react';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
   Avatar,
   Box,
@@ -49,6 +49,9 @@ function Layout({ children }: LayoutProps): ReactElement {
   const { mode, setMode } = useColorScheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const mainContentRef = useRef<HTMLDivElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [logout] = useLogoutMutation({
     refetchQueries: ['CurrentUser'],
@@ -56,6 +59,27 @@ function Layout({ children }: LayoutProps): ReactElement {
       localStorage.removeItem('auth_token');
     },
   });
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    if (mobileOpen) {
+      setMobileOpen(false);
+    }
+  }, [location.pathname]);
+
+  // Handle clicks outside the sidebar to close it on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileOpen && mainContentRef.current && mainContentRef.current.contains(event.target as Node)) {
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileOpen]);
 
   const sidebarItems: SidebarItem[] = [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
@@ -78,68 +102,99 @@ function Layout({ children }: LayoutProps): ReactElement {
   };
 
   const toggleSidebar = () => {
+    setIsAnimating(true);
     setSidebarOpen(!sidebarOpen);
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   const toggleMobileSidebar = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const Sidebar = () => (
-    <Sheet
-      sx={{
-        position: { xs: 'fixed', md: 'sticky' },
-        top: 0,
-        left: 0,
-        height: '100vh',
-        width: { xs: 240, md: sidebarOpen ? 240 : 72 },
-        transition: 'width 0.3s ease',
-        zIndex: 1000,
-        borderRight: '1px solid',
-        borderColor: 'divider',
-        overflow: 'hidden',
-        display: { xs: mobileOpen ? 'block' : 'none', md: 'block' },
-        boxShadow: 'md',
-      }}
-    >
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'space-between' : 'center' }}>
-        {sidebarOpen ? (
-          <Typography level="h3" component="h1">
-            AppName
-          </Typography>
-        ) : (
-          <Typography level="h3" component="h1">
-            A
-          </Typography>
-        )}
-      </Box>
-      <Divider />
-      <List size="sm" sx={{ py: 2 }}>
-        {sidebarItems.map((item) => (
-          <ListItem key={item.label}>
-            <ListItemButton
-              component={RouterLink}
-              to={item.path}
-              sx={{
-                borderRadius: 'sm',
-                justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                p: sidebarOpen ? undefined : 1,
-              }}
-            >
-              <ListItemDecorator>{item.icon}</ListItemDecorator>
-              {sidebarOpen && <ListItemContent>{item.label}</ListItemContent>}
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Sheet>
-  );
+  const handleSidebarItemClick = () => {
+    if (window.innerWidth < 900) {
+      // Approximate md breakpoint
+      setMobileOpen(false);
+    }
+  };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar />
+      <Box
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          bgcolor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 999,
+          opacity: mobileOpen ? 1 : 0,
+          visibility: mobileOpen ? 'visible' : 'hidden',
+          transition: 'opacity 0.3s ease, visibility 0.3s ease',
+          backdropFilter: 'blur(2px)',
+        }}
+        onClick={() => setMobileOpen(false)}
+      />
+      <Sheet
+        sx={{
+          position: { xs: 'fixed', md: 'sticky' },
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: {
+            xs: 240,
+            md: sidebarOpen ? 240 : 72,
+          },
+          zIndex: 1000,
+          borderRight: '1px solid',
+          borderColor: 'divider',
+          overflow: 'hidden',
+          display: 'block',
+          transition: 'all 0.3s ease',
+          boxShadow: 'md',
+          transform: {
+            xs: mobileOpen ? 'translateX(0)' : 'translateX(-240px)',
+            md: 'translateX(0)',
+          },
+        }}
+      >
+        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'space-between' : 'center' }}>
+          {(sidebarOpen || mobileOpen) ? (
+            <Typography level="h3" component="h1">
+              AppName
+            </Typography>
+          ) : (
+            <Typography level="h3" component="h1">
+              A
+            </Typography>
+          )}
+        </Box>
+        <Divider />
+        <List size="sm" sx={{ py: 2 }}>
+          {sidebarItems.map((item) => (
+            <ListItem key={item.label}>
+              <ListItemButton
+                component={RouterLink}
+                to={item.path}
+                onClick={handleSidebarItemClick}
+                sx={{
+                  borderRadius: 'sm',
+                  justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                  p: sidebarOpen ? undefined : 1,
+                }}
+              >
+                <ListItemDecorator>{item.icon}</ListItemDecorator>
+                {sidebarOpen && <ListItemContent>{item.label}</ListItemContent>}
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Sheet>
       <Box
         component="main"
+        ref={mainContentRef}
         sx={{
           flexGrow: 1,
           display: 'flex',
