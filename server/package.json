@@ -1,0 +1,48 @@
+{
+  "dependencies": {
+    "@apollo/server": "^4.10.4",
+    "@apollo/subgraph": "^2.7.4",
+    "argon2": "^0.41.1",
+    "dataloader": "^2.2.3",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.8.1",
+    "graphql-scalars": "^1.23.0",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "mongoose": "^8.3.3",
+    "node-cache": "^5.1.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.2",
+    "@graphql-codegen/typescript-resolvers": "^4.0.6",
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "eslint": "^8.16.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-import-resolver-typescript": "^3.4.2",
+    "eslint-plugin-import": "^2.26.0",
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.13.0",
+    "typescript": "^4.7.2"
+  },
+  "engines": {
+    "node": ">=23.10.0"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "dev:force": "nodemon -T src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "graphql-codegen && cp ./src/generated.ts ../client/src/generated.ts"
+  }
+}
