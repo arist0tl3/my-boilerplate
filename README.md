@@ -68,5 +68,24 @@ cd client
 npm run dev
 ```
 
+## Generating types
+
+When you've made changes to the GraphQL schema, you will want to make sure you also create/update the .graphql files in the client/graphql folder.
+
+Once the .graphql files match the typeDefs in the server, you can generate the types by running the following command:
+
+```bash
+cd server
+npm run generate
+```
+This will generate a new `generated.ts` file and copy it to the client folder. In there you will find not only the types but also the hooks to use the queries and mutations.
+
+Example:
+
+```ts
+const { data, loading, error } = useCurrentUserQuery();
+```
+
+
 
 
